@@ -49,6 +49,10 @@ jobs:
           echo "✅ No changes detected, skipping deploy."
           exit 0
         fi
+    - name: Create .env file
+      run: |
+        echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
+      
 
     - name: Deploy to server
       run: |
