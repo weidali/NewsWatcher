@@ -11,3 +11,4 @@ __pycache__/
 # Игнорируем логи
 logs/
 *.log
+yesterday_counts*
