@@ -9,24 +9,52 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: 3.x
 
+    # Кэширование зависимостей
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
+        python3 -m pip install --upgrade pip
         pip install -r requirements.txt
+    
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Run the script (deploy)
+    - name: Check for changes
       run: |
-        python news_watcher.py
+        git fetch
+        LOCAL=$(git rev-parse HEAD)
+        REMOTE=$(git rev-parse origin/main)  # или origin/master, в зависимости от основной ветки
+        if [ $LOCAL != $REMOTE ]; then
+          echo "🚨 Changes detected, deploying..."
+        else
+          echo "✅ No changes detected, skipping deploy."
+          exit 0
+        fi
 
-    - name: Clean up
+    - name: Deploy to server
       run: |
-        rm -rf __pycache__/
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} <<'ENDSSH'
+            set -e
+            echo "🚀 Deploying version: ${{ github.ref_name }}"
+            cd /var/www/${{ secrets.SSH_USER }}/data/www/NewsWatcher && git pull && python3 news_watcher.py
+            echo "✅ Deployed successfully!"
+          ENDSSH
