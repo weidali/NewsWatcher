@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: reg_ru  # <-- имя твоего окружения в GitHub (важно!)
 
     steps:
     - name: Checkout code
