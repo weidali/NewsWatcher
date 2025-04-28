@@ -1,4 +1,6 @@
 import sys
+import time
+import tracemalloc
 from app import fetcher, analyzer, notifier, storage, config, logger
 
 # Настройка логгирования
@@ -23,6 +25,9 @@ def main():
     print("🚀 Старт анализа новостей...")
     log.info("🚀 Запуск News Watcher...")
 
+    start_time = time.time()  # Засекаем время
+    tracemalloc.start()       # Старт отслеживания памяти
+
     try:
         text = fetcher.fetch_news()
         today_counts = analyzer.analyze_text(text)
@@ -42,6 +47,17 @@ def main():
     except Exception as e:
         log.error(f"❌ Ошибка: {e}")
         sys.exit(1)
+    
+    finally:
+        # Логируем использование ресурсов
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        current, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+
+        print(f"\n✅ Завершено за {total_time:.2f} секунд, пик памяти: {peak / 1024:.2f} KB.")
+        log.info(f"✅ Завершено за {total_time:.2f} секунд, пик памяти: {peak / 1024:.2f} KB.")
 
 if __name__ == "__main__":
     main()
