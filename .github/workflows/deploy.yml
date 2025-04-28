@@ -60,7 +60,7 @@ jobs:
         ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} <<'ENDSSH'
             set -e
             echo "🚀 Deploying version: ${{ github.ref_name }}"
-            cd /var/www/${{ secrets.SSH_USER }}/data/www/NewsWatcher && git pull && python3 news_watcher.py
+            cd /var/www/${{ secrets.SSH_USER }}/data/www/NewsWatcher && git pull && /opt/python/python-3.8.8/bin/python news_watcher.py
             echo "✅ Deployed successfully!"
         ENDSSH
 
