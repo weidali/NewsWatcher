@@ -1,10 +1,9 @@
 name: Deploy News Watcher
 
 on:
-  push:
-    branches:
-      - main
-      - master
+    push:
+      tags:
+        - 'v*'    # Только теги вида v1.0.0, v2.3.4 и т.п.
 
 jobs:
   deploy:
@@ -32,7 +31,7 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         pip install -r requirements.txt
-    
+
     - name: Setup SSH
       uses: webfactory/ssh-agent@v0.8.0
       with:
@@ -42,18 +41,18 @@ jobs:
       run: |
         git fetch
         LOCAL=$(git rev-parse HEAD)
-        REMOTE=$(git rev-parse origin/main)  # или origin/master, в зависимости от основной ветки
+        REMOTE=$(git rev-parse origin/main)  # или origin/master
         if [ $LOCAL != $REMOTE ]; then
           echo "🚨 Changes detected, deploying..."
         else
           echo "✅ No changes detected, skipping deploy."
           exit 0
         fi
+
     - name: Create .env file
       run: |
         echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
-        echo "CHAT_ID=${{ secrets.CHAT_ID }}" > .env
-      
+        echo "CHAT_ID=${{ secrets.CHAT_ID }}" >> .env
 
     - name: Deploy to server
       run: |
@@ -62,4 +61,13 @@ jobs:
             echo "🚀 Deploying version: ${{ github.ref_name }}"
             cd /var/www/${{ secrets.SSH_USER }}/data/www/NewsWatcher && git pull && python3 news_watcher.py
             echo "✅ Deployed successfully!"
-          ENDSSH
+        ENDSSH
+
+    - name: Notify on successful deploy
+      env:
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        CHAT_ID: ${{ secrets.CHAT_ID }}
+      run: |
+        curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+        -d chat_id="${CHAT_ID}" \
+        -d text="✅ News Watcher успешно задеплоен на сервер!"
