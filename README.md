@@ -24,6 +24,22 @@
 
 ## 🛠️ Структура проекта
 
+```
+news-watcher/
+├── app/                  # Весь код приложения
+│   ├── __init__.py
+│   ├── parser.py          # Парсер новостей
+│   ├── analyzer.py        # Аналитика общего фона
+│   └── config.py          # Конфигурации
+├── venv/                  # (Локальное виртуальное окружение, в .gitignore)
+├── logs/                  # Логи работы (ротация логов можно будет добавить)
+│   └── app.log
+├── requirements.txt       # Зависимости проекта
+├── news_watcher.py        # Главный файл запуска
+├── .gitignore             # Игнорируем лишние файлы
+└── README.md              # Описание проекта
+```
+
 - **news_watcher.py** — основной скрипт для анализа новостей и отправки уведомлений.
 - **requirements.txt** — список зависимостей (например, `feedparser`, `python-telegram-bot`).
 - **.github/workflows/deploy.yml** — конфигурация CI/CD через GitHub Actions.

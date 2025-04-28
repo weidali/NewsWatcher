@@ -3,8 +3,21 @@ from collections import Counter
 from telegram import Bot
 import json
 import os
+import logging
+import sys
+from app import parser, analyzer
 
 # --- Настройки ---
+
+# Проверка и создание папки logs/
+os.makedirs('logs', exist_ok=True)
+
+# Настройка логирования
+logging.basicConfig(
+    filename='logs/app.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 # RSS-ленты новостей (можно дополнять)
 RSS_FEEDS = [
@@ -76,6 +89,7 @@ def compare_and_alert(today_counts, yesterday_counts):
 
 def main():
     print("🚀 Старт анализа новостей...")
+    logging.info("🚀 Запуск News Watcher...")
     
     text = fetch_news()
     today_counts = analyze_text(text)
