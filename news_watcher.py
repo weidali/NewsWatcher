@@ -19,7 +19,7 @@ def compare_and_alert(today_counts, yesterday_counts):
             r_word = config.KEYWORDS_MAPPING.get(word, word)
             message = f"🚨 Всплеск темы: '{r_word}' вырос на {growth:.1f}%!"
             print(message)
-            notifier.send_telegram_message(message)
+            notifier.notify(message)
 
 def main():
     print("🚀 Старт анализа новостей...")
