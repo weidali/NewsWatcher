@@ -4,11 +4,23 @@ venv/
 # Игнорируем байт-код Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
 # Игнорируем скрытые файлы окружений
 .env
+*.env
+*.venv
+ENV/
+env/
+build/
+dist/
 
 # Игнорируем логи
+logs/*.log
 logs/
 *.log
 yesterday_counts*
+
+# Environment
+.python-version

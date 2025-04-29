@@ -91,7 +91,7 @@ jobs:
           # Запуск приложения
           python news_watcher.py
           echo "✅ Deployed successfully!"
-         ENDSSH
+        ENDSSH
 
     - name: Notify on successful deploy
       env:
