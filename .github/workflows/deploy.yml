@@ -4,6 +4,12 @@ on:
     push:
       tags:
         - 'v*'    # Только теги вида v1.0.0, v2.3.4 и т.п.
+    workflow_dispatch:
+      inputs:
+        install_dependencies:
+          description: 'Установить зависимости на сервере'
+          required: false
+          default: 'false'
 
 jobs:
   deploy:
@@ -49,6 +55,19 @@ jobs:
           echo "✅ No changes detected, skipping deploy."
           exit 0
         fi
+    
+    # Установка зависимостей на сервере, если параметр install_dependencies = true
+    - name: Install dependencies on server
+      if: ${{ github.event.inputs.install_dependencies == 'true' }}
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} <<'ENDSSH'
+          set -e
+          echo "🚀 Installing dependencies on server..."
+          cd /var/www/${{ secrets.SSH_USER }}/data/www/NewsWatcher
+          python3 -m pip install --upgrade pip
+          pip install -r requirements.txt
+          echo "✅ Dependencies installed successfully!"
+        ENDSSH
 
     - name: Create .env file
       run: |
